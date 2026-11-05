@@ -1,0 +1,69 @@
+ALARM / MAMI reproduction — protocol fixed before official test evaluation
+Upstream: https://github.com/Jian-Lang/ALARM
+Commit: d84e7ec37e72b6b33f27a8dd9c06fd59ee38410a
+Paper: https://arxiv.org/abs/2512.21598 (KDD 2026)
+
+Data
+- Official MAMI: 10,000 training and 1,000 test examples, original split preserved.
+- Five filenames occur in both releases but point to different images. Prefix sample
+  identifiers with train_/test_ and keep absolute image paths to avoid overwrites.
+- Smoke: 128 randomly selected official-training records for experience construction,
+  32 other official-training records for evaluation, seed 20261018. No official-test tuning.
+- Gold labels are a separate file. ALARM learning and prediction do not open it.
+- Raw data/images are external inputs and are not included in source-code archives.
+
+Initial hardware/software protocol
+- Dedicated Python 3.12 environment; upstream pinned dependencies.
+- Qwen2.5-VL-72B-Instruct-AWQ on the 96GB GPU for smoke verification.
+- Official ModelScope mirrors, SHA-256 checked. Jina code dependencies are localized
+  for offline loading; learned weights are unchanged.
+- Jina-CLIP-v2, 512-dimensional normalized image/text features, as released code.
+- Only confidence-selected training records need embedding for pairing. The released
+  script embeds the whole dataset first. Cosine matching was checked against the
+  original scipy-based implementation on smoke features: all 12 pairs match.
+- Greedy decoding (do_sample=False), fixed seed. The paper says temperature=0;
+  released label/inpredict YAMLs set do_sample=True. We follow the paper here.
+- Labels are the argmax of the normalized 0/1 token logits, as the paper defines.
+  Invalid generated tokens never become pseudo-labels or ground-truth fallbacks.
+- Selection uses the top 20% confidence globally, as released code/equation (2).
+- Initial pairing uses the released greedy one-to-one rule. The paper describes
+  bidirectional nearest opposite-class matching with pair deduplication. An explicit
+  paper-bidirectional option is provided; its results must not be silently mixed.
+- Original experience/refinement/inference prompts and ReferenceSetManager reused.
+- The released rule manager begins with a placeholder and may temporarily hold up
+  to 20 entries. We preserve it and record every operation/snapshot.
+- Inference explicitly supplies up to 15 references (paper/YAML capacity). The
+  released get_item_specific_references call otherwise silently defaults to 5.
+- Final answers are parsed from the Answer field. Unparseable answers fall back to
+  a label-only call, are counted, and never use ground truth.
+- Inference failures stop the run instead of silently dropping evaluation samples.
+- Checkpoints contain per-example outputs, prompts' source hashes, configs and timings.
+
+Scope
+- AWQ is a supported official-code configuration, but paper precision is unspecified.
+  Quantized results must be named as such, not claimed to exactly match the main table.
+- A direct zero-shot control is added for diagnostics. It is not the paper's 50-shot
+  in-context baseline. Reproducing that baseline requires its textual captions/demos.
+- Smoke success means all stages and integrity checks pass, not that ALARM improves
+  classification on 32 samples. No performance threshold is used to choose settings.
+- Start the complete MAMI experiment only after reviewing smoke integrity/results.
+
+Main experiment selected by the user
+- MAMI only at this stage; the user explicitly requires one GPU and sequential execution.
+- Use Qwen2.5-VL-72B-Instruct-AWQ on physical GPU 4 (96GB), selected by UUID.
+  Other GPUs must not be used. Recheck free memory immediately before launch.
+- A three-GPU nonquantized attempt was stopped during loading when this constraint
+  arrived; it produced no training/test predictions. Its source/config are retained
+  only as an abandoned attempt. The active full run is runs/main_awq.
+- Quantization is a declared reproduction difference, not a full-precision result.
+- Run all 10,000 training records and all 1,000 official test records, followed by
+  the 50-shot control in a separate process/output directory.
+- Original paper Table 2 reports MAMI ALARM Acc=81.28 and Macro-F1=81.25. A single
+  unweighted 1,000-example accuracy has 0.1 percentage-point resolution. No seed/run
+  averaging details were found in the available paper text; do not invent them or
+  tune this reproduction to an unexplained second decimal.
+- Original 50-shot demonstration IDs and captions were not released. Fixed sampled
+  training IDs and locally generated captions are documented reconstruction choices.
+- The reproduction reports actual complete-set accuracy/confusion matrix/Macro-F1.
+  It does not use the upstream class-specific F1 routine that filters by true class
+  before computing F1 and therefore drops the other class's false positives.

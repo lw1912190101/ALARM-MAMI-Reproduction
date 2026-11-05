@@ -1,0 +1,15 @@
+hydra:
+  output_subdir: null
+  run:  
+    dir: .
+
+prompt:
+model_id: Qwen/Qwen2.5-VL-72B-Instruct
+model_short_name: qwen
+dataset: FHM
+task: experience
+para: {}
+batch_size: 1
+threshold: 0.9
+pairs_name: pairs_coverage_0.2
+experience_name: coverage_0.2

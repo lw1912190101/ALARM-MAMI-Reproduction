@@ -1,0 +1,37 @@
+{
+  "train_samples": 10000,
+  "evaluation_samples": 1000,
+  "pairs": 833,
+  "real_references": 17,
+  "results": {
+    "ALARM": {
+      "accuracy": 0.816,
+      "macro_f1": 0.8156430850125844,
+      "class_f1": [
+        0.8237547892720306,
+        0.8075313807531381
+      ],
+      "balanced_accuracy": 0.8160000000000001,
+      "confusion_matrix": [
+        [
+          430,
+          70
+        ],
+        [
+          114,
+          386
+        ]
+      ],
+      "fallback_count": 0,
+      "inference_seconds": 11549.763881444931
+    }
+  },
+  "pseudo_label_diagnostics": {
+    "all_training_accuracy": 0.731,
+    "selected_accuracy": 0.921,
+    "selected_samples": 2000,
+    "note": "Computed after the completed run; never used for selection or tuning."
+  },
+  "technical_gate_passed": true,
+  "scope_note": "Integrity checks do not establish an improvement. Zero-shot control is not the paper 50-shot baseline. This run uses quantized AWQ weights."
+}

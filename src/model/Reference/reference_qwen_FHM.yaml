@@ -1,0 +1,16 @@
+hydra:
+  output_subdir: null
+  run:  
+    dir: .
+
+prompt: 
+
+model_id: Qwen/Qwen2.5-VL-72B-Instruct
+model_short_name: qwen
+dataset: FHM
+task: reference
+batch_size: 1
+para: {}
+size: 15
+reference_name: coverage_0.2_reference_15
+experience_name: coverage_0.2

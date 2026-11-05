@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.pyc
+.env
+.env.*
+/data/
+/models/
+/log/
+/logs/
+/runs/
+/cache/
+src/config/
+*.partial
+reproduction/run_records/

@@ -1,0 +1,17 @@
+{
+  "samples": 1000,
+  "accuracy": 0.804,
+  "macro_f1": 0.8033384304801352,
+  "confusion_matrix": [
+    [
+      431,
+      69
+    ],
+    [
+      127,
+      373
+    ]
+  ],
+  "fallback_count": 0,
+  "caption_note": "generated from each training image by this backbone; author demo IDs/captions not released"
+}

@@ -1,0 +1,16 @@
+hydra:
+  output_subdir: null
+  run:  
+    dir: .
+
+prompt: 
+model_id: Qwen/Qwen2.5-VL-72B-Instruct
+model_short_name: qwen
+dataset: ToxiCN
+task: inpredict
+batch_size: 1
+strategy: topk
+para:
+  do_sample: True
+top_k: 15
+reference_name: coverage_0.2_reference_15

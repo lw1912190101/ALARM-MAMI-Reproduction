@@ -1,0 +1,37 @@
+Remote root: /sda1/lw/ALARM_MAMI_20261018
+Dedicated Python: /home/lw/miniconda3/envs/alarm_mami_20261018/bin/python
+Local source: /Users/liweiyi/Documents/old/课程作业/alarm-mami-reproduction
+
+Inputs and protocol
+Read reproduction/PROTOCOL.txt before comparing results with the paper.
+data/full/data.jsonl preserves the 10,000/1,000 MAMI split.
+data/smoke/data.jsonl contains 128/32 records from official training only.
+data/gold_labels.json is read by the evaluator and the explicitly supervised
+50-shot baseline; it is not read by ALARM's learning or prediction stages.
+
+Jobs
+python3 code/reproduction/run_smoke_job.py /sda1/lw/ALARM_MAMI_20261018
+After reviewing the smoke result, record manifests/SMOKE_REVIEWED.json, then:
+python3 code/reproduction/run_main_job.py /sda1/lw/ALARM_MAMI_20261018
+
+The main job waits for verified AWQ weights and the single free physical GPU 4.
+Only one GPU may be used. All stages and the baseline run sequentially.
+It runs the complete ALARM MAMI branch, evaluates all 1,000 test records, and runs
+a paper-style 50-shot baseline. Original authors' demonstration IDs/captions are
+not provided, so the baseline uses fixed sampled training IDs and locally generated
+captions, records them, and explicitly documents this reconstruction.
+
+Status and outputs
+manifests/smoke_job_status.json, manifests/main_job_status.json
+runs/smoke_awq/status.json, runs/smoke_awq/evaluation.json
+runs/main_awq/status.json, runs/main_awq/evaluation.json
+runs/main_fewshot_awq/status.json, runs/main_fewshot_awq/evaluation.json
+logs/: component failures and subprocess logs
+Each run stores config, per-item predictions, pseudo-label probabilities, selected
+training pairs, experiences, all reference-update operations and elapsed timings.
+
+Rerunning skips completed predictions/experiences. Reference snapshots track the
+exact experience index. A source/config change refuses a silent resume; create a
+new output directory and document any reuse of unaffected upstream artifacts.
+Keep official test results out of prompt/config selection. Do not bundle raw images
+or datasets in a public source archive.
